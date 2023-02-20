@@ -1,8 +1,40 @@
 import discord 
 import os
 import requests
-import json 
+import json
 import random
+import openai
+
+
+
+def aiprompt(ai_prompt):
+
+    openai.api_key = os.getenv("OPENAI_API_KEY")
+
+    response = openai.Completion.create(
+        model="text-davinci-003",
+        prompt=ai_prompt,
+        temperature=0,
+        max_tokens=60,
+        top_p=1.0,
+        frequency_penalty=0.0,
+        presence_penalty=0.0
+    )
+
+    string_of_res = str(response)
+    data = json.loads(string_of_res)
+
+    choices = data['choices']
+
+    deeznuts = ""
+    for nuts in choices:
+        deeznuts = deeznuts + nuts['text']
+        deeznuts = deeznuts + '\n'
+
+    return deeznuts
+
+
+
 
 intents = discord.Intents.default()
 intents.message_content = True
@@ -16,7 +48,7 @@ bot_responseappric = ["Thanks :D","It's my pleasure.","You are too kind <3.","Ha
 conv0=["Hello"]
 Hatsune_Miku1 = ["Hey, user, can I talk to you for a second?"]
 conv1 = ["Sure, what's up?"]
-Hatsune_Miku2 = ["Well, Valentine's Day is coming up, and I was wondering if you could help me with something."]
+hatsune_Miku2 = ["Well, Valentine's Day is coming up, and I was wondering if you could help me with something."]
 Conv2 = ["Oh? What do you need help with?"]
 Hatsune_Miku3 = ["I want to ask Ujwol to be my Valentine, but I don't know how to do it. Can you help me come up with a plan?"]
 Conv3 = ["Uh, sure, I guess. But aren't you a robot?"]
@@ -92,5 +124,7 @@ async def on_message(message):
 
   if any(word in message.content for word in user_inputpraise):
     await message.channel.send(random.choice(bot_responseappric))
-  
-client.run(os.getenv('TOKEN')) 
+  else:
+    await message.channel.send(aiprompt("Reply as Hatsune Miku: " + message.content))
+    
+client.run(os.getenv('TOKEN'))
